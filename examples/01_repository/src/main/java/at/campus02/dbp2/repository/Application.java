@@ -10,7 +10,7 @@ public class Application {
     public static void main(String[] args) {
         log("application started");
 
-        CustomerRepository repository = new InMemoryRepository();
+        CustomerRepository repository = new JdbcRepository("jdbc:derby:database;create=true");
 
         Customer customer = new Customer();
         customer.setEmail("otschibert@gmail.com");
