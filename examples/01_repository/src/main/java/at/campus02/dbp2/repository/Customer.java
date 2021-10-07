@@ -1,8 +1,14 @@
 package at.campus02.dbp2.repository;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Customer {
 
-    private String lastname, firstname, email;
+    private String lastname, firstname;
+    @Id
+    private String email;
 
     public String getLastname() {
         return lastname;
