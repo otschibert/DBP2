@@ -2,9 +2,12 @@ package at.campus02.dbp2.repository;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 @Entity
 public class Customer {
+
+    // @Transient --> Not in Database
 
     private String lastname, firstname;
     @Id
