@@ -4,6 +4,7 @@ import at.campus02.dbp2.mappings.AccountType;
 import at.campus02.dbp2.mappings.Customer;
 import at.campus02.dbp2.mappings.CustomerRepository;
 import at.campus02.dbp2.mappings.CustomerRepositoryJpa;
+import org.eclipse.persistence.jpa.rs.annotations.RestPageable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,11 @@ public class CustomerRepositoryCrudSpec {
     private final String firstname = "Firstname";
     private final String lastname = "Lastname";
     private final AccountType accountType = AccountType.BASIC;
-    private final LocalDate registeredSince = LocalDate.now();
+    private final LocalDate registeredSince = LocalDate.of(2021, 10, 1);
+    private final String changedFirstname = "changedFirstname";
+    private final String changedLastname = "changedLastname";
+    private final AccountType changedAccountType = AccountType.PREMIUM;
+    private final LocalDate changeRegisteredSince = LocalDate.of(2021, 10, 14);
 
     private Customer initDefaultCustomer() {
         Customer customer = new Customer();
@@ -99,4 +104,127 @@ public class CustomerRepositoryCrudSpec {
     }
     //#endregion
 
+
+    //#region CRUD:read
+
+    @Test
+    public void readFindsCustomerInDatabase() {
+        //given
+        Customer existing = initDefaultCustomer();
+        manager.getTransaction().begin();
+        manager.persist(existing);
+        manager.getTransaction().commit();
+        //when
+        Customer fromRepository = repository.read((existing.getId()));
+        //then
+        assertEquals(existing.getId(), fromRepository.getId());
+        assertEquals(firstname, fromRepository.getFirstname());
+        assertEquals(lastname, fromRepository.getLastname());
+        assertEquals(accountType, fromRepository.getAccountType());
+        assertEquals(registeredSince, fromRepository.getRegisteredSince());
+    }
+
+    @Test
+    public void readWithNotExistingIdReturnsNull() {
+        //when
+        Customer fromRepository = repository.read(-1);
+        //then
+        assertNull(fromRepository);
+    }
+
+    @Test
+    public void readWithNullAsIdReturnsNull() {
+        //when
+        Customer fromRepository = repository.read(null);
+        //then
+        assertNull(fromRepository);
+    }
+
+    //#endregion
+
+
+    //#region CRUD: update
+
+    @Test
+    public void updateChangesAttributesInDatabase() {
+        //given
+        Customer existing = initDefaultCustomer();
+        manager.getTransaction().begin();
+        manager.persist(existing);
+        manager.getTransaction().commit();
+        //when
+        existing.setFirstname(changedFirstname);
+        existing.setLastname(changedLastname);
+        existing.setAccountType(changedAccountType);
+        existing.setRegisteredSince(changeRegisteredSince);
+        Customer updated = repository.update(existing);
+        //then
+        assertEquals(existing.getId(), updated.getId());
+        assertEquals(changedFirstname, updated.getFirstname());
+        assertEquals(changedLastname, updated.getLastname());
+        assertEquals(changedAccountType, updated.getAccountType());
+        assertEquals(changeRegisteredSince, updated.getRegisteredSince());
+        //also check values from database
+        //clear cache to ensure reading from DB again
+        manager.clear();
+        Customer fromDB = manager.find(Customer.class, updated.getId());
+        assertEquals(updated.getId(), fromDB.getId());
+        assertEquals(changedFirstname, fromDB.getFirstname());
+        assertEquals(changedLastname, fromDB.getLastname());
+        assertEquals(changedAccountType, fromDB.getAccountType());
+        assertEquals(changeRegisteredSince, fromDB.getRegisteredSince());
+    }
+
+    @Test
+    public void updateNotExistingCustomerThrowsIllegalArgumentException(){
+        //given
+        Customer notExisting = initDefaultCustomer();
+        //when / then
+        assertThrows(IllegalArgumentException.class, () -> repository.update(notExisting));
+    }
+
+    @Test
+    public void updateWithNullAsCustomerReturnsNull(){
+        //when
+        Customer updated = repository.update(null);
+        //then
+        assertNull(updated);
+    }
+    //#endregion
+
+    //#region CRUD: delete
+
+    @Test
+    public void deleteRemovesCustomerFromDatabaseAndReturnsTrue(){
+        //given
+        Customer existing = initDefaultCustomer();
+        manager.getTransaction().begin();
+        manager.persist(existing);
+        manager.getTransaction().commit();
+        //when
+        boolean result = repository.delete(existing);
+        //then
+        assertTrue(result);
+        manager.clear();
+        Customer hopefullyDeleted = manager.find(Customer.class, existing.getId());
+        assertNull(hopefullyDeleted);
+    }
+
+    @Test
+    public void deleteNotExistingCustomerthrowsIllegalArgumentException(){
+        //given
+        Customer notExisting = initDefaultCustomer();
+        //when / then
+        assertThrows(IllegalArgumentException.class, () -> repository.delete(notExisting));
+    }
+
+    @Test
+    public void deleteNullAsCustomerReturnsFalse(){
+        //when
+        boolean result = repository.delete(null);
+        //then
+        assertFalse(result);
+    }
+
+    //#endregion
 }
