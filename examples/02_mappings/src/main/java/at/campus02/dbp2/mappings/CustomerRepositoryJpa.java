@@ -3,6 +3,7 @@ package at.campus02.dbp2.mappings;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -66,7 +67,13 @@ public class CustomerRepositoryJpa implements CustomerRepository {
 
     @Override
     public List<Customer> getAllCustomers() {
-        return null;
+        TypedQuery<Customer> query =
+                manager.createQuery(
+                        "select c from Customer c " +
+                                "order by c.registeredSince",
+                        Customer.class
+                );
+        return query.getResultList();
     }
 
     @Override
@@ -76,7 +83,14 @@ public class CustomerRepositoryJpa implements CustomerRepository {
 
     @Override
     public List<Customer> findByAccountType(AccountType type) {
-        return null;
+        TypedQuery<Customer> query =
+                manager.createQuery(
+                        "select c from Customer c " +
+                                "where c.accountType = :accountType ",
+                        Customer.class
+                );
+        query.setParameter("accountType", type);
+        return query.getResultList();
     }
 
     @Override
