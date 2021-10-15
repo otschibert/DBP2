@@ -204,6 +204,20 @@ public class CustomerRepositoryQuerySpec {
         assertThat(matching, is(empty()));
     }
 
+    @Test
+    public void findAllRegisteredAfterReturnsMatchingCustomers (){
+        //given
+        setupCommonTestdate();
+        //when
+        List<Customer> matching = repository.findAllRegisteredAfter(LocalDate.of(2021,4,4));
+        //then
+        assertThat(matching, containsInAnyOrder(customer5, customer6, customer7));
+        //and when
+        matching = repository.findAllRegisteredAfter(LocalDate.of(2021,4,3));
+        //then
+        assertThat(matching, containsInAnyOrder(customer4, customer5, customer6, customer7));
+    }
+
     //#endregion
 
 }
