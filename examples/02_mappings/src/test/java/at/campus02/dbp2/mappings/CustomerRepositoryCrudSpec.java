@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -101,6 +102,15 @@ public class CustomerRepositoryCrudSpec {
         boolean result = repository.create(toCreate);
         //then
         assertFalse(result);
+    }
+
+    @Test
+    public void createCustomerWithNullAsAccountTypeThrowsException(){
+        //given
+        Customer notValid = initDefaultCustomer();
+        notValid.setAccountType(null);
+        //when
+        assertThrows(RuntimeException.class, () -> repository.create(notValid));
     }
     //#endregion
 

@@ -108,8 +108,10 @@ public class CustomerRepositoryQuerySpec {
     }
     //#endregion
 
+    //#region tests
+
     @Test
-    public void getAllCustomersReturnsAllCustomersFromDbSortedByRegistrationDate(){
+    public void getAllCustomersReturnsAllCustomersFromDbSortedByRegistrationDate() {
         //given
         setupCommonTestdate();
         //when
@@ -124,7 +126,7 @@ public class CustomerRepositoryQuerySpec {
     }
 
     @Test
-    public void getAllCustomersOnEmptyDatabaseReturnsEmptyList(){
+    public void getAllCustomersOnEmptyDatabaseReturnsEmptyList() {
         //when
         List<Customer> sortedCustomers = repository.getAllCustomers();
         //then
@@ -156,7 +158,52 @@ public class CustomerRepositoryQuerySpec {
 //                        && expectedPremium.containsAll(premium)
 //                        && premium.containsAll(expectedPremium)
 //        );
-
     }
+
+    @Test
+    public void findByAccountTypeNullReturnsEmptyList() {
+        //given
+        setupCommonTestdate();
+        //when
+        List<Customer> result = repository.findByAccountType(null);
+        //then
+        assertThat(result, is(empty()));
+    }
+
+    @Test
+    public void findByLastnameReturnsMatchingCustomers() {
+        //given
+        setupCommonTestdate();
+        //when
+        List<Customer> matching = repository.findByLastname("orn");
+        //then
+        assertThat(matching, contains(customer4, customer7));
+    }
+
+    @Test
+    public void findByLastnameReturnsCaseInsensitivelyMatchingCustomers() {
+        //given
+        setupCommonTestdate();
+        //when
+        List<Customer> matching = repository.findByLastname("eBEr");
+        //then
+        assertThat(matching, contains(customer5, customer6));
+    }
+
+    @Test
+    public void findByLastnameWithNullOrEmptyStringReturnsEmpty() {
+        //given
+        setupCommonTestdate();
+        //when
+        List<Customer> matching = repository.findByLastname("");
+        //then
+        assertThat(matching, is(empty()));
+        //and when
+        matching = repository.findByLastname(null);
+        //then
+        assertThat(matching, is(empty()));
+    }
+
+    //#endregion
 
 }
