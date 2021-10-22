@@ -1,9 +1,6 @@
 package at.campus02.dbp2.relations;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.Objects;
 
 
@@ -16,6 +13,8 @@ public class Animal {
     private String name;
     @OneToOne
     private Student owner;
+    @ManyToOne
+    private Species species;
 
     public Animal() {
     }
@@ -42,6 +41,14 @@ public class Animal {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Species getSpecies() {
+        return species;
+    }
+
+    public void setSpecies(Species species) {
+        this.species = species;
     }
 
     @Override
